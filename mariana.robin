@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Canvas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        #controls {
+            margin-bottom: 20px;
+        }
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+        }
+        .selected {
+            border: 2px solid red;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <label for="shape">Selecciona una forma:</label>
+        <select id="shape">
+            <option value="rectangle">Rectángulo</option>
+            <option value="circle">Círculo</option>
+            <option value="triangle">Triángulo</option>
+        </select>
+
+        <label for="color">Selecciona un color:</label>
+        <select id="color">
+            <option value="red">Rojo</option>
+            <option value="blue">Azul</option>
+            <option value="yellow">Amarillo</option>
+        </select>
+
+        <button id="clear">Limpiar Canvas</button>
+    </div>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <script>
+        // Obtener referencias a los elementos
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const shapeSelect = document.getElementById('shape');
+        const colorSelect = document.getElementById('color');
+        const clearButton = document.getElementById('clear');
+
+        let currentShape = 'rectangle';
+        let currentColor = 'red';
+        let shapes = [];
+
+        // Manejar la selección de formas
+        shapeSelect.addEventListener('change', (e) => {
+            currentShape = e.target.value;
+        });
+
+        // Manejar la selección de color
+        colorSelect.addEventListener('change', (e) => {
+            currentColor = e.target.value;
+        });
+
+        // Manejar el clic en el canvas para dibujar formas
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            let shape;
+            if (currentShape === 'rectangle') {
+                shape = { type: 'rectangle', x, y, width: 100, height: 50, color: currentColor };
+            } else if (currentShape === 'circle') {
+                shape = { type: 'circle', x, y, radius: 50, color: currentColor };
+            } else if (currentShape === 'triangle') {
+                shape = { type: 'triangle', x, y, size: 100, color: currentColor };
+            }
+            shapes.push(shape);
+            drawShapes();
+        });
+
+        // Función para dibujar todas las formas en el canvas
+        function drawShapes() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            shapes.forEach((shape) => {
+                ctx.beginPath();
+                ctx.fillStyle = shape.color;
+
+                if (shape.type === 'rectangle') {
+                    ctx.rect(shape.x, shape.y, shape.width, shape.height);
+                } else if (shape.type === 'circle') {
+                    ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
+                } else if (shape.type === 'triangle') {
+                    ctx.moveTo(shape.x, shape.y);
+                    ctx.lineTo(shape.x + shape.size / 2, shape.y + shape.size);
+                    ctx.lineTo(shape.x - shape.size / 2, shape.y + shape.size);
+                    ctx.closePath();
+                }
+
+                ctx.fill();
+                ctx.strokeStyle = 'black';
+                ctx.stroke();
+            });
+        }
+
+        // Manejar el botón de limpiar
+        clearButton.addEventListener('click', () => {
+            shapes = [];
+            drawShapes();
+        });
+    </script>
+</body>
+</html>
